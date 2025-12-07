@@ -1,6 +1,7 @@
 import sqlite3
 import socket
 import datetime
+import os
 
 # --- Crear base de datos y tablas ---
 def create_db():
@@ -41,7 +42,8 @@ def create_db():
     # Crear usuario por defecto
     cursor.execute("SELECT * FROM users WHERE username='admin'")
     if cursor.fetchone() is None:
-        cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", ('admin', '1234'))
+	admin_pass = os.environ.get('ADMIN_PASS', 'secreto_por_defecto')
+        cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", ('admin', admin_pass))
 
     conn.commit()
     conn.close()
