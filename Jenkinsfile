@@ -14,13 +14,14 @@ pipeline {
                 script {
                     echo '🔍 Ejecutando SCA...'
                     sh 'pip3 install safety --break-system-packages'
-                    
-                    // CAMBIO AQUI: Agregamos --json y cambiamos extensión
-                    def exitCode = sh(script: 'safety check -r app/requirements.txt --json > safety_report.json', returnStatus: true)
-                    
-                    // CAMBIO AQUI: Guardamos el .json
-                    archiveArtifacts artifacts: 'safety_report.json', allowEmptyArchive: true
-                    
+
+                    // VOLVEMOS A .TXT
+                    // Usamos "sed" para limpiar los códigos de colores raros
+                    def exitCode = sh(script: "safety check -r app/requirements.txt | sed 's/\x1b\\[[0-9;]*m//g' > safety_report.txt", returnStatus: true)
+
+                    // Guardamos el reporte .txt
+                    archiveArtifacts artifacts: 'safety_report.txt', allowEmptyArchive: true
+
                     if (exitCode != 0) {
                         error("❌ SCA FALLÓ: Se detectaron librerías vulnerables. El pipeline se detiene aquí.")
                     } else {
@@ -35,12 +36,11 @@ pipeline {
                 script {
                     echo '🔍 Ejecutando SAST...'
                     sh 'pip3 install bandit --break-system-packages'
-                    
-                    // Bandit ya estaba en JSON, lo dejamos igual
+
+                    // Bandit funciona bien en JSON, lo dejamos así
                     def exitCode = sh(script: 'bandit -r app/ -f json -o bandit_report.json', returnStatus: true)
-                    
                     archiveArtifacts artifacts: 'bandit_report.json', allowEmptyArchive: true
-                    
+
                     if (exitCode != 0) {
                         error("❌ SAST FALLÓ: Se detectó código inseguro. El pipeline se detiene aquí.")
                     } else {
@@ -55,10 +55,9 @@ pipeline {
                 script {
                     echo '🚀 Desplegando App para DAST...'
                     sh 'docker rm -f target-app zap-run || true'
-                    
                     sh 'docker build -t target-app app/'
                     sh 'docker run -d --name target-app -p 5000:5000 target-app'
-                    
+
                     sleep 10 
 
                     echo '⚔️ Ejecutando ZAP...'
@@ -67,11 +66,10 @@ pipeline {
                     } catch (Exception e) {
                         echo 'ZAP finalizó con alertas.'
                     }
-                    
+
                     echo '📄 Extrayendo reporte ZAP...'
                     sh 'docker cp zap-run:/zap/wrk/zap_report.html .'
                     archiveArtifacts artifacts: 'zap_report.html', allowEmptyArchive: true
-                    
                     sh 'docker rm -f zap-run target-app'
                 }
             }
