@@ -1,5 +1,3 @@
-# Creamos el Dockerfile para que Jenkins pueda desplegar la app
-cat <<EOF > app/Dockerfile
 FROM python:3.9-slim
 
 WORKDIR /app
@@ -16,4 +14,3 @@ EXPOSE 5000
 
 # Ejecutamos la app
 CMD ["python", "web_app.py"]
-EOF
