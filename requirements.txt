@@ -1,0 +1,7 @@
+# NOTA: requests==2.19.1 es antigua a propósito para que salte la alerta de SCA.
+cat <<EOF > app/requirements.txt
+flask
+requests==2.19.1
+bandit
+safety
+EOF
