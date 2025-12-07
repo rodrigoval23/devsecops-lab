@@ -1,0 +1,4 @@
+flask
+requests==2.19.1
+bandit
+safety
