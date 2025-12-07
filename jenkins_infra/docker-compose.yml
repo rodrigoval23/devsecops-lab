@@ -1,0 +1,17 @@
+services:
+  jenkins:
+    build: .
+    container_name: jenkins_devsecops
+    privileged: true
+    user: root
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      # ESTO ES CRÍTICO: Permite que Jenkins controle el Docker de tu Kali
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: on-failure
+
+volumes:
+  jenkins_home:

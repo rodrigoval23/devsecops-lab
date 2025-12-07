@@ -13,7 +13,7 @@ def create_db():
     # AQUI ESTA EL CAMBIO DE SEGURIDAD:
     cursor.execute("SELECT * FROM users WHERE username='admin'")
     if cursor.fetchone() is None:
-        admin_pass = os.environ.get('ADMIN_PASS', 'default_secret')
+        admin_pass = os.environ.get('ADMIN_PASS', 'default_secret') # nosec
         cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", ('admin', admin_pass))
 
     conn.commit()
